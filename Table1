@@ -1,0 +1,487 @@
+library(readxl)
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(stringr)
+
+# Statistical modeling
+library(survival)
+library(splines)
+library(MASS)
+library(car)
+library(broom)
+library(broom.helpers)
+
+# Robust statistics
+library(sandwich)
+library(lmtest)
+
+# Tables and visualization
+library(gtsummary)
+library(forcats)
+library(ggplot2)
+library(patchwork)
+library(corrplot)
+# Mediation analysis
+library(mediation)
+library(forcats)
+
+#setwd("/Users/siyi/Desktop/AKI/Data/")
+
+parse_dt <- function(x) {
+  parse_date_time(x, orders = c("ymd", "mdy", "ymd HMS", "mdy HMS"), tz = "UTC")
+}
+
+# Main dataset
+setwd("/Users/siyi/Desktop/AKI/Data/")
+dt <- fread("anesthesia project coded.csv")
+names(dt)
+# unique records (baseline, one per patient)
+dt_unique <- dt[, .SD[1], by = record_id]
+library(data.table)
+# follow up
+keep_cols <- c(
+  "record_id","redcap_repeat_instrument","redcap_repeat_instance",
+  "patient_status","date_last_seen_retransplan","primary_cause_of_death___1","primary_cause_of_death___2",
+  "primary_cause_of_death___3","primary_cause_of_death___4",
+  "last_pulmonary_function_te","last_fvc_l","last_fvc","last_fev1_l","last_fev1",
+  "baseline_fvc_l_since_transpl","baseline_fvc_l_since_transpl","baseline_fev1",
+  "o2_required_at_rest",
+  "acute_rejection_episodes_d","hospitalization_post_op","how_many_hospitalizations"
+)
+
+# all follow-up rows, only the needed columns
+dt_g_follow_up_all <- dt[tolower(redcap_repeat_instrument) == "g_follow_up", ..keep_cols]
+#fwrite(dt_g_follow_up, "anesthesia_project_coded_g_follow_up.csv")
+
+# ----RENAL FUNCTION DISTRIBUTIONS-------------------------------
+
+# Peak Creatinine (48h)
+cat("\nPeak Creatinine (48h):\n")
+summary(dt_unique$peak_creatinine_within_48)
+
+# Minimum eGFR (48h)
+cat("\nMinimum eGFR (48h):\n")
+summary(dt_unique$minimum_egfr_within_48_hrs)
+
+# Correlation between peak Cr and min eGFR
+cor_cr_egfr <- cor(dt_unique$peak_creatinine_within_48, 
+                   dt_unique$minimum_egfr_within_48_hrs, 
+                   use = "complete.obs")
+cat("\nCorrelation (Peak Cr vs Min eGFR):", round(cor_cr_egfr, 3), "\n")
+
+# Visualizations
+par(mfrow = c(2, 2))
+
+hist(dt_unique$peak_creatinine_within_48, breaks = 30,
+     main = "Peak Creatinine (48h)", xlab = "mg/dL", col = "lightblue")
+
+hist(dt_unique$minimum_egfr_within_48_hrs, breaks = 30,
+     main = "Minimum eGFR (48h)", xlab = "mL/min/1.73 m²", col = "lightgreen")
+
+plot(dt_unique$peak_creatinine_within_48, dt_unique$minimum_egfr_within_48_hrs,
+     xlab = "Peak Creatinine (48h)", ylab = "Min eGFR (48h)",
+     main = "Correlation: Peak Cr vs Min eGFR", pch = 16, col = "pink")
+
+abline(lm(minimum_egfr_within_48_hrs ~ peak_creatinine_within_48, data = dt_unique),
+       col = "red", lty = 2, lwd = 2)
+
+#Since there is a strong right-skew of the peak creatinine 
+#consider log-transforming peak creatinine
+dt_unique$log_peak_cr48 <- log1p(dt_unique$peak_creatinine_within_48)  # log(1 + x)
+fit_EI_raw_adj <- lm(peak_creatinine_within_48 ~ diabetes + age_transplant + sex + bmi + most_recent_creatinine_mg,
+                     data = dt_unique)
+fit_EI_log_adj <- lm(log_peak_cr48 ~ diabetes + age_transplant + sex + bmi + most_recent_creatinine_mg,
+                     data = dt_unique)
+
+summary(fit_EI_raw_adj)
+summary(fit_EI_log_adj)
+
+# --------ANALYSIS DATASETS------------------------------------
+# Transform main dataset with calculated variables
+dt1 <- dt %>%
+  mutate(
+    tx_dt    = parse_dt(date_of_transplant),
+    disch_dt = parse_dt(date_of_discharge),
+    death_dt = parse_dt(date_of_death),
+    fu_dt    = parse_dt(date_last_seen_retransplan),
+    
+    # Clinical exposures
+    hypoxia_pf = best_pf_ratio_prior_to_ret,
+    any_pressor = as.integer(rowSums(across(starts_with("type_of_pressor_used___"),
+                                            ~ as.integer(. %in% c(1, "1"))), 
+                                     na.rm = TRUE) > 0),
+    scr_preop = as.numeric(most_recent_creatinine_mg),
+    anemia_hb = most_recent_hemoglobin
+  )
+
+# Baseline dataset (one row per patient)
+base <- dt1 %>%
+  filter(is.na(redcap_repeat_instrument) | redcap_repeat_instrument != "g_follow_up") %>%
+  arrange(record_id, tx_dt) %>%
+  group_by(record_id) %>% 
+  slice(1) %>% 
+  ungroup() %>%
+  transmute(
+    record_id, tx_dt, disch_dt, death_dt,
+    
+    # Exposures
+    anemia_hb, hypoxia_pf, any_pressor, scr_preop,
+    
+    # Demographics
+    age = age_transplant, sex, bmi,
+    
+    # Clinical characteristics
+    las_at_transplant,
+    functional_status_at_time,
+    patient_on_life_support,
+    diabetes,
+    pulm_htn = if_pulmonary_htn,
+    ever_smoked,
+    prior_card = prior_cardiac_surgery,
+    prior_lung = prior_lung_surgery_non_tra,
+    
+    # Transplant details
+    single_double = type_of_lung_transplant,
+    cpb_used = if_cpb_or_modified_cpb_was,
+    ecmo_intra = intraoperative_ecls,
+    ecmo_postop = postoperative_ecls,
+    multi_organ_transplant,
+    primary_diagnosis,
+    
+    # Intraoperative
+    units_rbc = units_rbc_intraop,
+    fluids_ml = total_amount_of_fluids_use,
+    units_ffp = units_ffp_intraop,
+    units_platelets = units_of_platelets,
+    units_cryoprecipitate = units_of_cryoprecipitate,
+    type_of_support = type_of_support,
+  
+    
+    # Outcomes
+    acute_renal_failure_within,
+    peak_creatinine_within_48,
+    
+    tx_year = year(tx_dt)
+  )
+
+cat("\nBaseline dataset created with", nrow(base), "patients\n")
+
+# --------------- AKI OUTCOME VARIABLES------------------------------------------
+
+base_outcomes <- base %>%
+  mutate(
+    # Primary AKI definition (KDIGO-based)
+    aki_binary = case_when(
+      is.na(acute_renal_failure_within) ~ NA_real_,
+      acute_renal_failure_within == 1 ~ 0,  # None = No AKI
+      acute_renal_failure_within >= 2 ~ 1,  # Risk/Injury/Failure = AKI
+      TRUE ~ NA_real_
+    ),
+    
+    # AKI staging
+    aki_stage = case_when(
+      is.na(acute_renal_failure_within) ~ NA_real_,
+      acute_renal_failure_within == 1 ~ 0,  # None
+      acute_renal_failure_within == 2 ~ 1,  # Stage 1
+      acute_renal_failure_within == 3 ~ 2,  # Stage 2
+      acute_renal_failure_within %in% c(4, 5, 6) ~ 3,  # Stage 3
+      TRUE ~ NA_real_
+    ),
+    
+    # Absolute creatinine increase
+    scr_increase = peak_creatinine_within_48 - scr_preop,
+    aki_by_absolute = ifelse(!is.na(scr_increase) & scr_increase >= 0.3, 1, 0),
+    
+    # Severe AKI (Stage 2-3)
+    severe_aki = ifelse(!is.na(aki_stage) & aki_stage >= 2, 1, 0),
+    
+    # Convert categorical variables to factors
+    aki_binary = factor(aki_binary, levels = c(0, 1), labels = c("No AKI", "AKI")),
+    sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
+    diabetes = factor(diabetes),
+    pulm_htn = factor(pulm_htn, levels = c(1,2), labels = c("Primary PHTN", "Secondary PHTN")),
+    ever_smoked = factor(ever_smoked),
+    prior_card = factor(prior_card),
+    prior_lung = factor(prior_lung),
+    single_double = factor(single_double),
+    cpb_used = factor(cpb_used),
+    ecmo_intra = factor(ecmo_intra),
+    any_pressor = factor(any_pressor),
+    patient_on_life_support = factor(patient_on_life_support),
+    type_of_support = factor(
+      type_of_support,
+      levels = c(1, 2, 3, 4),
+      labels = c(
+        "1, ECMO",
+        "2, IABP",
+        "3, Ventilator",
+        "4, Noninvasive PPV"
+      )
+    ),
+    
+    # Collapse rare primary diagnosis levels
+    primary_diagnosis = case_when(
+      primary_diagnosis == "Obstructive Lung Disease" ~ "1, Obstructive Lung Disease",
+      primary_diagnosis == "Cystic Fibrosis" ~ "2, Cystic Fibrosis",
+      primary_diagnosis == "Pulmonary Vascular Disease" ~ "3, Pulmonary Vascular Disease",
+      primary_diagnosis == "Restrictive Lung Disease" ~ "4, Restrictive Lung Disease",
+      TRUE ~ "Other"
+    ),
+    primary_diagnosis = factor(primary_diagnosis)
+  )
+
+cat("AKI prevalence:\n")
+print(table(base_outcomes$aki_binary, useNA = "ifany"))
+
+# -----Table 1 by AKI DESCRIPTIVE STATISTICS ----------------------------------------------------
+
+library(forcats)
+library(conflicted)
+library(gtsummary)
+
+conflicted::conflicts_prefer(dplyr::filter, dplyr::select, dplyr::mutate)
+
+# Define variables requiring Fisher’s test due to sparse cells
+fisher_vars <- c(
+  "any_pressor", "cpb_used", "ecmo_intra", "prior_cardiac_surgery",
+  "if_pulmonary_htn", "diabetes", "single_double",
+  "functional_status_at_time", "primary_diagnosis"
+)
+
+# Define test list
+test_list <- list(
+  all_continuous() ~ "wilcox.test",
+  all_categorical() ~ "chisq.test"
+)
+
+# Override with Fisher for selected sparse binary variables
+for (var in fisher_vars) {
+  test_list[[var]] <- "fisher.test"
+}
+
+# Filter + clean
+table1_data <- dt_df %>%
+  filter(!is.na(aki_binary)) %>%
+  mutate(
+    ejection_fraction = as.numeric(ejection_fraction),
+    fev1 = as.numeric(fev1),
+    sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
+    primary_diagnosis = case_when(
+      primary_diagnosis == "Obstructive Lung Disease" ~ "1, Obstructive Lung Disease",
+      primary_diagnosis == "Cystic Fibrosis" ~ "2, Cystic Fibrosis",
+      primary_diagnosis == "Pulmonary Vascular Disease" ~ "3, Pulmonary Vascular Disease",
+      primary_diagnosis == "Restrictive Lung Disease" ~ "4, Restrictive Lung Disease",
+      TRUE ~ "Other"
+    ),
+    type_of_support = factor(
+      type_of_support,
+      levels = c(1, 2, 3, 4),
+      labels = c(
+        "1, ECMO",
+        "2, IABP",
+        "3, Ventilator",
+        "4, Noninvasive PPV"
+      )
+    ),
+    if_pulmonary_htn = factor(if_pulmonary_htn,
+                              levels = c(1, 2),
+                              labels = c("Primary PHTN", "Secondary PHTN")),
+    condition_at_time_of_trans = factor(condition_at_time_of_trans,
+                                        levels = c(1, 2, 3),
+                                        labels = c("1, In Intensive Care Unit",
+                                                   "2, Hospitalized, Not in ICU",
+                                                   "3, Not Hospitalized"
+                                                   )),
+    functional_status_at_time = factor(functional_status_at_time,
+                                       levels = c(1, 2, 3, 4),
+                                       labels = c("1, > 60%",          # ← remove extra comma/space
+                                                  "2, 40–60%",         # ← was "2, 2, 40-60%"
+                                                  "3, 20–30%",
+                                                  "4, 10%")            # ← remove trailing comma
+    ),
+    diabetes = factor(diabetes,
+                      levels = c(1, 2, 3, 4),
+                      labels = c("1, No",
+                                 "2, Type 1",
+                                 "3, Type 2",
+                                 "4, Unknown")),
+    rv_dysfunction = factor(rv_dysfunction,
+                            levels = c(1, 2, 3, 4),
+                            labels = c("1, None",
+                                       "2, Mild",
+                                       "3, Moderate",
+                                       "4, Severe")), 
+    rvsp_or_spap = factor(rvsp_or_spap,
+                          levels = c(1, 2),
+                          labels = c("< 40 mmHg", "≥ 40 mmHg")),
+    
+    
+    abo_group = factor(abo_group,
+                       levels = c(1, 2, 3, 4),
+                       labels = c("1, A",
+                                  "2, B",
+                                  "3, AB",
+                                  "4, O")),
+    rh = factor(rh,
+                levels = c(1, 2),
+                labels = c("Positive", "Negative")),
+    
+    gender_donor = factor(gender_donor,
+                          levels = c(1, 2),
+                          labels = c("Male", "Female")),
+    race_donor = factor(race_donor,
+                        levels = c(1, 2, 3),
+                        labels = c("1, White ",
+                                   "2, African American/Black",
+                                   "3, Other")),
+    cxr_abnormalities = factor(cxr_abnormalities,
+                               levels = c(1, 2, 3, 4),
+                               labels = c("1, None",
+                                          "2, Minor",
+                                          "3, Single Lobe",
+                                          "4, Multilobe")),
+    secretions = factor(secretions,
+                        levels = c(1, 2, 3),
+                        labels = c("1, None",
+                                   "2, Moderate",
+                                   "3, Major")),
+    cause_of_death = factor(cause_of_death,
+                            levels = c(1, 2, 3, 4, 5),
+                            labels = c("1, Anoxia",
+                                       "2, CVA/Stroke",
+                                       "3, Head Trauma",
+                                       "4, CNS ",
+                                       "5, Other")), 
+    donor_type = factor(donor_type,
+                        levels = c(1, 2),
+                        labels = c("DBD", "DCD")),
+    cmv_status_donor = factor(cmv_status_donor,
+                              levels = c(1, 2, 3),
+                              labels = c("1, Positive",
+                                         "2, Negative",
+                                         "3, Unknown")),
+    type_of_lung_transplant = factor(type_of_lung_transplant,
+                                     levels = c(1, 2, 3),
+                                     labels = c("1, Single Right",
+                                                "2, Single Left",
+                                                "3, Double")),
+    type_of_incision = factor(type_of_incision,
+                              levels = c(1, 2, 3),
+                              labels = c("1, Clamshell",
+                                         "2, Sternotomy",
+                                         "3, Isolated Bilateral Thoracotomies")),
+    if_yes_type_of_support = factor(if_yes_type_of_support,
+                                    levels = c(1, 2, 3, 4),
+                                    labels = c("1, CPB",
+                                               "2, ECMO",
+                                               "3, Modified Bypass",
+                                               "4, Other")),
+    use_of_inhaled_vasodilator = factor(use_of_inhaled_vasodilator,
+                                        levels = c(1, 2, 3),
+                                        labels = c("1, Nitric Oxide",
+                                                   "2, Flolan",
+                                                   "3, N/A ")),
+    intraoperative_ecls = factor(intraoperative_ecls,
+                                 levels = c(1, 2, 3, 4),
+                                 labels = c("1, Off-pump ",
+                                            "2, ECMO",
+                                            "3, CPB",
+                                            "4, Modified CPB")),
+    type_of_ecls_used = factor(type_of_ecls_used,
+                               levels = c(1, 2),
+                               labels = c("None", "ECMO")),
+    type_of_ecls_conversion = factor(type_of_ecls_conversion,
+                                     levels = c(1, 2, 3, 4),
+                                     labels = c("1, ECMO",
+                                                "2, CPB",
+                                                "3, modified CPB",
+                                                "4, Other")),
+    type_of_post_op_fluids_in = factor(type_of_post_op_fluids_in,
+                                       levels = c(1, 2, 3, 4),
+                                       labels = c("1, ECMO",
+                                                  "2, CPB",
+                                                  "3, modified CPB",
+                                                  "4, Other"))
+  )
+
+# Create Table 1
+table1_aki <- table1_data %>%
+  select(
+    aki_binary,
+    age_transplant, sex, bmi,
+    primary_diagnosis,
+    starts_with("specific_primary_diagnosis___"),
+    if_pulmonary_htn, las_at_transplant, cas_tx,
+    patient_on_life_support, type_of_support, days_on_ecmo,
+    condition_at_time_of_trans, functional_status_at_time,
+    diabetes, any_previous_malignancy, multi_drug_resistant_bacte,
+    ever_smoked, lung_infection_requiring_i,
+    prior_cardiac_surgery, prior_lung_surgery_non_tra,
+    prior_lung_transplant, tracheostomy, prior_pleurodesis,
+    chronic_steroid_use_5_mg_2,
+    pulmonary_artery_systolic, mean_pulmonary_capillary_w,
+    cardiac_output_l_min, cardiac_index_l_m_m2,
+    pulmonary_artery_diastolic, pulmonary_artery_mean_pres,
+    ejection_fraction, rv_dysfunction, rvsp_or_spap,
+    abo_group, rh,
+    most_recent_creatinine_mg, most_recent_total_bilirubi,
+    most_recent_hemoglobin, most_recent_hematocrit,
+    fvc, fvc_predicted, fev1, fev1_predicted,
+    fio2_estimate, paco2, pao2,
+    perfusion_right_lung, perfusion_left_lung,
+    ventilation_right_lung, ventilation_left_lung,
+    age, gender_donor, race_donor, diabetes_donor,
+    cxr_abnormalities, pneumonia, secretions,
+    ecd_extended_criteria, cause_of_death, donor_type,
+    cmv_status_donor, ever_smoked_donor,
+    estimated_pack_year_histor,
+    best_pf_ratio_prior_to_ret, last_pf_ratio_prior_to_ret,
+    evlp,
+    type_of_lung_transplant,
+    warm_ischemic_time_left_lu, warm_ischemic_time_right_l,
+    type_of_incision, skin_skin_time, skin_to_skin_time_2,
+    chest_left_open,
+    use_of_ecls, if_yes_type_of_support,
+    circuit_with_heparin_coati, if_cpb_or_modified_cpb_was,
+    if_cpb_was_a_leukocyte_fil, if_cpb_pump_suckers_used,
+    avalon_cannula, target_flow_rate, time_of_ecls,
+    target_act, total_heparin_dose,
+    nadir_temperature, nadir_hct,
+    cell_salvage, units_rbc_intraop, units_ffp_intraop,
+    units_of_platelets, units_of_cryoprecipitate,
+    total_amount_of_fluids_use,
+    type_of_pressor_used___0, type_of_pressor_used___1,
+    type_of_pressor_used___2, type_of_pressor_used___3,
+    type_of_pressor_used___4, type_of_pressor_used___5,
+    type_of_pressor_used___6, type_of_pressor_used___7,
+    use_of_inhaled_vasodilator,
+    intraoperative_ecls, type_of_ecls_used,
+    was_there_a_conversion, type_of_ecls_conversion,
+    postoperative_ecls,
+    total_fluids_in_first_24_h, type_of_post_op_fluids_in
+  ) %>%
+  tbl_summary(
+    by = aki_binary,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = list(all_continuous() ~ 2, all_categorical() ~ 1),
+    missing = "ifany"
+  ) %>%
+  add_overall() %>%
+  add_n() %>%
+  add_p(
+    test = test_list,
+    pvalue_fun = ~ style_pvalue(.x, digits = 3)
+  ) %>%
+  modify_header(label ~ "**Variable**") %>%
+  modify_spanning_header(starts_with("stat_") ~ "**AKI Status**") %>%
+  bold_labels()
+
+
+# View in RStudio
+table1_aki
+
