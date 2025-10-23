@@ -12,13 +12,13 @@ I firstly convert the AKI as a binary AKI outcome, with 1= No AKI, 2-6=Risk/Inju
 The potential problem with AKI is the sample size of having AKI is only 48/460. 
 
 Here is the Lasso model result (I used dt_unique baseline data with one row per patient, not include follow-up information ): 
-                    Variable   Coefficient
-1  functional_status_at_time  1.820837e-01
-2          units_rbc_intraop  1.200803e-01
-3         units_of_platelets  7.706624e-02
-4                        bmi  1.292697e-02
-5 total_amount_of_fluids_use -7.493584e-05
-
+| Variable | Coefficient |
+|----------|-------------|
+| functional_status_at_time | 1.820837e-01 |
+| units_rbc_intraop | 1.200803e-01 |
+| units_of_platelets | 7.706624e-02 |
+| bmi | 1.292697e-02 |
+| total_amount_of_fluids_use | -7.493584e-05 |
 
 Primary models: Prespecified clinical covariates plus any LASSO-selected predictors.
 
