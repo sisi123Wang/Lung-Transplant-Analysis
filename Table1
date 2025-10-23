@@ -27,6 +27,7 @@ library(corrplot)
 library(mediation)
 library(forcats)
 
+#please change the path of yours. If the file loded properly, no need to adjust path.
 #setwd("/Users/siyi/Desktop/AKI/Data/")
 
 parse_dt <- function(x) {
@@ -55,48 +56,6 @@ keep_cols <- c(
 dt_g_follow_up_all <- dt[tolower(redcap_repeat_instrument) == "g_follow_up", ..keep_cols]
 #fwrite(dt_g_follow_up, "anesthesia_project_coded_g_follow_up.csv")
 
-# ----RENAL FUNCTION DISTRIBUTIONS-------------------------------
-
-# Peak Creatinine (48h)
-cat("\nPeak Creatinine (48h):\n")
-summary(dt_unique$peak_creatinine_within_48)
-
-# Minimum eGFR (48h)
-cat("\nMinimum eGFR (48h):\n")
-summary(dt_unique$minimum_egfr_within_48_hrs)
-
-# Correlation between peak Cr and min eGFR
-cor_cr_egfr <- cor(dt_unique$peak_creatinine_within_48, 
-                   dt_unique$minimum_egfr_within_48_hrs, 
-                   use = "complete.obs")
-cat("\nCorrelation (Peak Cr vs Min eGFR):", round(cor_cr_egfr, 3), "\n")
-
-# Visualizations
-par(mfrow = c(2, 2))
-
-hist(dt_unique$peak_creatinine_within_48, breaks = 30,
-     main = "Peak Creatinine (48h)", xlab = "mg/dL", col = "lightblue")
-
-hist(dt_unique$minimum_egfr_within_48_hrs, breaks = 30,
-     main = "Minimum eGFR (48h)", xlab = "mL/min/1.73 m²", col = "lightgreen")
-
-plot(dt_unique$peak_creatinine_within_48, dt_unique$minimum_egfr_within_48_hrs,
-     xlab = "Peak Creatinine (48h)", ylab = "Min eGFR (48h)",
-     main = "Correlation: Peak Cr vs Min eGFR", pch = 16, col = "pink")
-
-abline(lm(minimum_egfr_within_48_hrs ~ peak_creatinine_within_48, data = dt_unique),
-       col = "red", lty = 2, lwd = 2)
-
-#Since there is a strong right-skew of the peak creatinine 
-#consider log-transforming peak creatinine
-dt_unique$log_peak_cr48 <- log1p(dt_unique$peak_creatinine_within_48)  # log(1 + x)
-fit_EI_raw_adj <- lm(peak_creatinine_within_48 ~ diabetes + age_transplant + sex + bmi + most_recent_creatinine_mg,
-                     data = dt_unique)
-fit_EI_log_adj <- lm(log_peak_cr48 ~ diabetes + age_transplant + sex + bmi + most_recent_creatinine_mg,
-                     data = dt_unique)
-
-summary(fit_EI_raw_adj)
-summary(fit_EI_log_adj)
 
 # --------ANALYSIS DATASETS------------------------------------
 # Transform main dataset with calculated variables
@@ -168,7 +127,7 @@ base <- dt1 %>%
 
 cat("\nBaseline dataset created with", nrow(base), "patients\n")
 
-# --------------- AKI OUTCOME VARIABLES------------------------------------------
+# AKI OUTCOME VARIABLES
 
 base_outcomes <- base %>%
   mutate(
@@ -235,7 +194,7 @@ base_outcomes <- base %>%
 cat("AKI prevalence:\n")
 print(table(base_outcomes$aki_binary, useNA = "ifany"))
 
-# -----Table 1 by AKI DESCRIPTIVE STATISTICS ----------------------------------------------------
+# Table 1 by AKI DESCRIPTIVE STATISTICS
 
 library(forcats)
 library(conflicted)
@@ -481,7 +440,6 @@ table1_aki <- table1_data %>%
   modify_spanning_header(starts_with("stat_") ~ "**AKI Status**") %>%
   bold_labels()
 
-
-# View in RStudio
+# View
 table1_aki
 
