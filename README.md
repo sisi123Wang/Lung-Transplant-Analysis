@@ -37,6 +37,9 @@ After controlling for all covariates, RBC transfusions significantly increase AK
 
 # Cox Regression
 This model was fitted to estimate hazard ratios (HR) for time-to-death, censoring at retransplantation or last follow-up. The model included age, sex, preoperative hemoglobin (anemia_hb), hypoxia severity (hypoxia_pf), transplant type (single vs double), postoperative ECMO requirement, and diabetes status as covariates.
+
+
+
 <img width="649" height="694" alt="Screenshot 2025-10-23 at 4 16 57 PM" src="https://github.com/user-attachments/assets/eae9cac4-829e-49d4-81f2-5b96c964b2ef" />
 
 
@@ -45,6 +48,7 @@ By modeling the rate of mortality events with person-time as an offset term, thi
 Both models utilized complete case analysis, with the Poisson model analyzing 522 patients and the Cox model analyzing 521 patients (1 observation deleted due to missingness).
 
 <img width="595" height="346" alt="Screenshot 2025-10-23 at 4 19 51 PM" src="https://github.com/user-attachments/assets/e2e94d89-bcb7-42e2-8e41-f6ab0e8cff0d" />
+
 
 # Model Performance
 The Cox model demonstrated excellent discrimination with a concordance index of 0.74 (SE = 0.031). Both models identified age as a significant mortality risk factor. The Cox model estimated a 4.6% increase in hazard per year (HR = 1.046, 95% CI: 1.016-1.076, p = 0.002), while the Poisson model showed similar magnitude (RR = 1.051, p = 0.004).
