@@ -86,7 +86,22 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 | **Post-operative ECLS**  | **3.69**       | **1.33 – 10.28** | **0.012** | Highly significant: needing post-op ECLS was associated with about **3.7× higher hazard of death.**                                                                       |
 
 
-#After adjusting for pre-op comorbidities (diabetes types, malignancy, pulmonary infection, prior surgeries, etc.), does AKI change the instantaneous hazard of death after transplant? (Firth‐penalized Cox model)
+# After adjusting for pre-op comorbidities (diabetes types, malignancy, pulmonary infection, prior surgeries, etc.), does AKI change the instantaneous hazard of death after transplant? (Firth‐penalized Cox model)
+
+| Variable                                | HR (exp(coef)) | 95% CI (Lower – Upper) | p-value   | Interpretation                                                                   |
+| --------------------------------------- | -------------- | ---------------------- | --------- | -------------------------------------------------------------------------------- |
+| **AKI (present vs none)**               | **1.75**       | 0.74 – 3.96            | 0.20      | Directionally higher mortality risk with AKI, but not statistically significant. |
+| **Age (per year)**                      | 0.99           | 0.96 – 1.02            | 0.55      | No significant effect of age in this model.                                      |
+| **Sex (female vs male)**                | 1.27           | 0.53 – 3.29            | 0.60      | No significant difference by sex.                                                |
+| **BMI (per unit)**                      | 1.04           | 0.96 – 1.12            | 0.33      | Weak, nonsignificant trend.                                                      |
+| **Diabetes (Type II)**                  | 14.86          | 0.84 – 155.54          | 0.063     | Possibly higher risk, but extremely wide CI (few events).                        |
+| **Diabetes (other types)**              | 1.44 – 1.18    | (approx. 0.50 – 3.69)  | 0.48–0.92 | No clear effect; unstable estimates due to small cell counts.                    |
+| **Any Previous Malignancy**             | 0.65           | 0.01 – 5.18            | 0.75      | No deaths among malignancy patients; coefficient stabilized by Firth correction. |
+| **Lung Infection requiring IV therapy** | 0.77           | 0.06 – 4.21            | 0.79      | No clear association.                                                            |
+| **Multi-drug Resistant Infection**      | 0.42           | 0.03 – 4.42            | 0.49      | No clear association.                                                            |
+| **Prior Lung Transplant**               | 0.91           | 0.18 – 3.56            | —         | No clear association (estimate imprecise).                                       |
+| **Prior Cardiac Surgery**               | 1.79           | 0.18 – 8.59            | 0.55      | No significant association.                                                      |
+| **Tracheostomy**                        | 0.55           | 0.04 – 3.41            | 0.56      | No clear association.                                                            |
 
 
 
