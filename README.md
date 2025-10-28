@@ -5,6 +5,8 @@ This project is to test what degree does anemia, hypoxia, hypotension, and pre-e
 2. Table 1 (baseline by AKI)
 3. Table 2 (outcomes by AKI stage) to understand distributions.
 4. LASSO to screen among pre-transplant/intra-op predictors for each endpoint.
+5. cause-specific Cox proportional hazards model test after transplanted impact on death.
+6. Firth‐penalized Cox model to see if AKI change the instantaneous hazard of death after transplant.
 
 Lasso: 
 I firstly convert the AKI as a binary AKI outcome, with 1= No AKI, 2-6=Risk/Injury/Failure/Loss/ESRD as AKI
