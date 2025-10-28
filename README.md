@@ -109,7 +109,9 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 | **Tracheostomy**                        | 0.55           | 0.04 – 3.41            | 0.56      | No clear association.                                                            |
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Mortality--For each predictor on its own, is there evidence it’s associated with the instantaneous hazard of death after lung transplant?
+# Lung-Transplant-Analysis-part B for Mortality
+
+# For each predictor on its own, is there evidence it’s associated with the instantaneous hazard of death after lung transplant?
 <img width="1096" height="1256" alt="image" src="https://github.com/user-attachments/assets/86317086-d013-4935-b829-09b49b2b121e" />
 
 
