@@ -110,6 +110,23 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 <img width="1096" height="1256" alt="image" src="https://github.com/user-attachments/assets/86317086-d013-4935-b829-09b49b2b121e" />
 
 
+# Among patients who have not yet died or been censored at a given time, how do these covariates change the instantaneous hazard (risk per unit time) of death after lung transplant? ( A cause-specific Cox model) with n = 459 patients, 32 deaths
+
+| Variable                 | Coefficient (β) | Hazard Ratio (exp(β)) | 95% CI (Lower–Upper) |   p-value | Interpretation                               |
+| ------------------------ | --------------: | --------------------: | -------------------: | --------: | -------------------------------------------- |
+| **Age at transplant**    |          0.0082 |                 1.008 |        0.992 – 1.043 |     0.637 | No significant effect of age on mortality    |
+| **Sex (Male vs Female)** |           0.202 |                 1.224 |        0.553 – 2.711 |     0.618 | No difference in mortality by sex            |
+| **BMI**                  |          0.0009 |                 1.001 |        0.937 – 1.070 |     0.979 | No association; violates PH (p=0.027)        |
+| **Postoperative ECLS**   |       **0.937** |              **2.55** |      **1.09 – 5.97** | **0.031** | **Significant 2.5× higher mortality hazard** |
+| **Units FFP (intra-op)** |           0.142 |                  1.15 |        0.887 – 1.495 |     0.288 | Weak, non-significant increase in risk       |
+| **Units RBC (intra-op)** |          −0.028 |                  0.97 |        0.820 – 1.153 |     0.750 | No association with mortality                |
+
+
+
+
+
+
+
 
 
 
