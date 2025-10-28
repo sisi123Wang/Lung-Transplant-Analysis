@@ -84,7 +84,13 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 | **Fluids (per L)**       | 0.84           | 0.57 – 1.25      | 0.40      | Slight trend toward lower hazard with more fluid, not significant.                                                                                                        |
 | **Type of ECLS used**    | **0.096**      | **0.019 – 0.48** | **0.004** | Strongly significant: those with this ECLS type had about **90 % lower hazard of death** than the reference group.                                                        |
 | **Post-operative ECLS**  | **3.69**       | **1.33 – 10.28** | **0.012** | Highly significant: needing post-op ECLS was associated with about **3.7× higher hazard of death.**                                                                       |
-#
+
+
+#After adjusting for pre-op comorbidities (diabetes types, malignancy, pulmonary infection, prior surgeries, etc.), does AKI change the instantaneous hazard of death after transplant? (Firth‐penalized Cox model)
+
+
+
+
 
 
 
