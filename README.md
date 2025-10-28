@@ -43,6 +43,17 @@ This model was fitted to estimate hazard ratios (HR) for time-to-death, censorin
 <img width="649" height="694" alt="Screenshot 2025-10-23 at 4 16 57 PM" src="https://github.com/user-attachments/assets/eae9cac4-829e-49d4-81f2-5b96c964b2ef" />
 
 
+| Variable                     | HR (exp(coef)) | 95% CI (Lower–Upper) | p-value     | Interpretation                                                                                                            |
+| ---------------------------- | -------------- | -------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Age (per year)**           | **1.046**      | 1.016 – 1.076        | **0.002**   | Each additional year of age increases the hazard of death by ~4.6%. Older patients face higher post-transplant mortality. |
+| **Sex**                      | **1.84**       | 0.95 – 3.22          | **0.032**   | The male has lower hazard; the female has ~84% higher instantaneous risk of death.              |
+| **Anemia (Hb)**              | 0.97           | 0.85 – 1.10          | 0.62        | No significant association between pre-operative hemoglobin and mortality.                                                |
+| **Hypoxia (PF ratio)**       | 1.00           | 0.998 – 1.003        | 0.80        | No meaningful effect at this scale. The variable may need rescaling (per 50 or 100 mmHg).                                 |
+| **Single vs Double Lung Tx** | 0.97           | 0.65 – 1.44          | 0.87        | Mortality risk is similar for single and double transplants.                                                              |
+| **Post-operative ECMO**      | **2.93**       | **1.64 – 5.24**      | **0.00027** | Strong effect: patients needing ECMO after transplant have almost 3× higher hazard of death.                              |
+| **Diabetes**                 | **1.50**       | **1.11 – 2.01**      | **0.0077**  | Diabetic patients have ~50% higher hazard of death than non-diabetics.                                                    |
+
+
 # Poisson Regression Model
 By modeling the rate of mortality events with person-time as an offset term, this approach estimates rate ratios (RR) under the assumption of constant hazard rates. Heteroskedasticity-consistent standard errors (HC0) were employed to provide robust inference against model misspecification and overdispersion.
 Both models utilized complete case analysis, with the Poisson model analyzing 522 patients and the Cox model analyzing 521 patients (1 observation deleted due to missingness).
@@ -57,7 +68,20 @@ The requirement for postoperative extracorporeal membrane oxygenation emerged as
 Diabetes was significantly associated with increased mortality risk. The Cox model estimated HR = 1.50 (95% CI: 1.112-2.012, p = 0.008). The Poisson model revealed heterogeneity across diabetes categories, with rate ratios ranging from 2.41 to 4.25 (p = 0.007-0.028), though one category showed an anomalous protective effect (RR = 1.16×10⁻⁶).
 Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypoxia severity (PF ratio), nor transplant type (single vs double lung) reached statistical significance in either model, suggesting these factors may not be independent predictors of mortality after adjustment for other covariates.
 
+# Among lung-transplant patients still alive and not retransplanted, how does each variable affect the instantaneous hazard (risk per day) of death? The cause-specific Cox proportional hazards model for death after lung transplant. (consored from death_event == 1)
 
+| Variable                 | HR (exp(coef)) | 95% CI           | p-value   | Interpretation                                                                                                                                                            |
+| ------------------------ | -------------- | ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AKI (aki_binary)**     | 2.18           | 0.77 – 6.18      | 0.14      | Patients with AKI had about **2× higher instantaneous risk of death** than those without AKI, but this result is **not statistically significant** (wide CI → uncertain). |
+| **Age**                  | 0.98 per year  | 0.95 – 1.02      | 0.18      | Each year older slightly lowered the estimated hazard, but again **not significant**.                                                                                     |
+| **Sex (Female vs Male)** | 1.59           | 0.57 – 4.39      | 0.37      | Females showed higher risk, but with wide uncertainty.                                                                                                                    |
+| **BMI**                  | 1.00           | 0.93 – 1.08      | 0.95      | No clear relationship.                                                                                                                                                    |
+| **RBC units intra-op**   | 0.99           | 0.83 – 1.18      | 0.92      | No clear relationship.                                                                                                                                                    |
+| **Platelets units**      | 1.14           | 0.69 – 1.87      | 0.62      | No clear relationship.                                                                                                                                                    |
+| **Fluids (per L)**       | 0.84           | 0.57 – 1.25      | 0.40      | Slight trend toward lower hazard with more fluid, not significant.                                                                                                        |
+| **Type of ECLS used**    | **0.096**      | **0.019 – 0.48** | **0.004** | Strongly significant: those with this ECLS type had about **90 % lower hazard of death** than the reference group.                                                        |
+| **Post-operative ECLS**  | **3.69**       | **1.33 – 10.28** | **0.012** | Highly significant: needing post-op ECLS was associated with about **3.7× higher hazard of death.**                                                                       |
+#
 
 
 
