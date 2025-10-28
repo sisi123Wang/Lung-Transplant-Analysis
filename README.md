@@ -44,6 +44,9 @@ This model was fitted to estimate hazard ratios (HR) for time-to-death, censorin
 
 <img width="649" height="694" alt="Screenshot 2025-10-23 at 4 16 57 PM" src="https://github.com/user-attachments/assets/eae9cac4-829e-49d4-81f2-5b96c964b2ef" />
 
+In univariable Cox analysis, several intra- and postoperative factors showed significant associations with mortality after lung transplantation. Patients requiring postoperative extracorporeal life support (ECLS) had nearly a three-fold higher hazard of death (HR ≈ 2.9, p = 0.005), indicating that postoperative cardiopulmonary failure strongly predicts poor survival. Greater intra-operative transfusion volumes, including fresh frozen plasma, red blood cells, cryoprecipitate, and platelets—were also linked to higher mortality risk (HRs ≈ 1.1–1.3, p < 0.05), suggesting that heavier transfusion requirements reflect greater surgical complexity and physiological stress. Other perioperative and preoperative factors, such as age, sex, BMI, pulmonary hypertension, prior surgeries, or baseline renal and hematologic indices, did not show significant unadjusted associations with death. 
+
+
 
 
 | Variable                     | HR (exp(coef)) | 95% CI (Lower–Upper) | p-value     | Interpretation                                                                                                            |
