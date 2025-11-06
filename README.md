@@ -127,6 +127,13 @@ In univariable Cox analysis, several intra- and postoperative factors showed sig
 | **Units RBC (intra-op)** |          −0.028 |                  0.97 |        0.820 – 1.153 |     0.750 | No association with mortality                |
 
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Lung-Transplant-Analysis-part C for dialysis. It is worth notice that the event of dialysis is only 10. 
+
+| Variable                   | OR   | 95% CI         | P_value |
+|---------------------------|------|----------------|---------|
+| peak_creatinine_within_48 | 3.92 | (0, 56.23)     | 0.298   |
+| units_rbc_intraop         | 1.24 | (0.52, 1.74)   | 0.206   |
 
 
 
