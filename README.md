@@ -165,12 +165,17 @@ Univariable Firth's logistic regression analyses. Which individual clinical vari
 | Transplant             | skin_skin_time                | 307 | 1.01  | (0.93, 1.05)        | 0.734   |             |
 
 
+This analysis identified fev1 and best_pf_ratio_prior_to_ret as the only two statistically significant univariable predictor (p=0.040) of the dialysis.
 
-| Variable                   | OR   | 95% CI         | P_value |
-|---------------------------|------|----------------|---------|
-| peak_creatinine_within_48 | 3.92 | (0, 56.23)     | 0.298   |
-| units_rbc_intraop         | 1.24 | (0.52, 1.74)   | 0.206   |
+After adjusting for each other, do FEV1 and P/F ratio independently predict dialysis need after lung transplantation? logistf model.
 
+| Variable                   | Coef          | SE(Coef)      | Lower 0.95     | Upper 0.95     | Chisq     | P_value   |
+|---------------------------|---------------|----------------|----------------|----------------|-----------|-----------|
+| (Intercept)               | -10.452352033 | 2.510432467    | -18.69754101   | 7.15434919     | 3.199288  | 0.07367035|
+| fev1                      | 0.143076105   | 0.050264728    | 0.02182324     | 0.27736918     | 4.735488  | 0.02954647|
+| best_pf_ratio_prior_to_ret| 0.006441956   | 0.002466541    | -0.03078357    | 0.01273418     | 2.768614  | 0.09612934|
+
+This 2-variable model shows FEV1 independently predicts dialysis need (p=0.030) after adjusting for P/F ratio, which itself is borderline significant (p=0.096). 
 
 
 
