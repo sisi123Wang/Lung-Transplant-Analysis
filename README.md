@@ -129,6 +129,42 @@ In univariable Cox analysis, several intra- and postoperative factors showed sig
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Lung-Transplant-Analysis-part C for dialysis. It is worth notice that the event of dialysis is only 10. 
+Univariable Firth's logistic regression analyses. Which individual clinical variables are associated with dialysis after lung transplantation? 
+| Category               | Variable                      | N   | OR    | 95% CI             | P_value | Significant |
+|------------------------|-------------------------------|-----|-------|---------------------|---------|-------------|
+| AKI Markers            | peak_creatinine_within_48     | 472 | 5.52  | (0.03, 82.57)       | 0.149   |             |
+| AKI Markers            | aki_stage                     | 460 | 3.96  | (0.26, 79.65)       | 0.190   |             |
+| Baseline Labs          | most_recent_creatinine_mg     | 525 | 38.06 | (0, 3269.93)        | 0.152   |             |
+| Baseline Labs          | most_recent_hemoglobin        | 525 | 0.58  | (0.27, 10.29)       | 0.364   |             |
+| Baseline Labs          | most_recent_hematocrit        | 525 | 0.90  | (0.35, 2.31)        | 0.683   |             |
+| Clinical Severity      | patient_on_life_support       | 524 | 7.14  | (0.04, 1322.08)     | 0.360   |             |
+| Clinical Severity      | las_at_transplant             | 313 | 1.04  | (0.82, 1.23)        | 0.408   |             |
+| Clinical Severity      | functional_status_at_time     | 526 | 2.72  | (0.02, 212.59)      | 0.530   |             |
+| Comorbidities          | prior_cardiac_surgery         | 526 | 35.34 | (0.19, 6633.05)     | 0.136   |             |
+| Comorbidities          | prior_lung_surgery_non_tra    | 526 | 6.48  | (0.03, 1198.67)     | 0.381   |             |
+| Comorbidities          | diabetes                      | 526 | 2.54  | (0.16, 715.96)      | 0.396   |             |
+| Comorbidities          | ever_smoked                   | 526 | 0.96  | (0.01, 176.49)      | 0.982   |             |
+| Demographics           | sex                           | 572 | 1.11  | (0.33, 3.80)        | 0.861   |             |
+| Demographics           | age                           | 526 | 1.01  | (0.57, 1.75)        | 0.887   |             |
+| Demographics           | bmi                           | 572 | 1.00  | (0.89, 1.12)        | 0.953   |             |
+| Fluids                 | total_amount_of_fluids_use    | 468 | 1.00  | (1, 1)              | 0.401   |             |
+| Intraoperative Support | postoperative_ecls            | 526 | 3.52  | (0.02, 651.42)      | 0.542   |             |
+| Intraoperative Support | intraoperative_ecls           | 526 | 2.24  | (0.03, 237.01)      | 0.594   |             |
+| Intraoperative Support | if_cpb_or_modified_cpb_was    | 64  | 0.46  | (0, 86.44)          | 0.704   |             |
+| Pressors               | type_of_pressor_used___0      | 526 | 10.09 | (0.05, 1871.86)     | 0.292   |             |
+| Pressors               | type_of_pressor_used___2      | 526 | 0.42  | (0, 78.05)          | 0.672   |             |
+| Pressors               | type_of_pressor_used___3      | 526 | 0.47  | (0, 87.60)          | 0.712   |             |
+| Pressors               | type_of_pressor_used___1      | 526 | 0.49  | (0, 89.91)          | 0.722   |             |
+| Respiratory            | fev1                          | 507 | 1.14  | (1.01, 1.28)        | 0.040   | ***         |
+| Respiratory            | best_pf_ratio_prior_to_ret    | 526 | 1.01  | (0.97, 1.01)        | 0.095   | *           |
+| Transfusions           | units_ffp_intraop             | 467 | 1.34  | (0.67, 1.82)        | 0.106   |             |
+| Transfusions           | units_rbc_intraop             | 492 | 1.25  | (0.72, 1.66)        | 0.122   |             |
+| Transfusions           | units_of_cryoprecipitate      | 468 | 1.77  | (0.34, 3.65)        | 0.143   |             |
+| Transfusions           | units_of_platelets            | 442 | 2.21  | (0.18, 12.03)       | 0.263   |             |
+| Transplant             | type_of_lung_transplant       | 526 | 0.37  | (0.02, 8.35)        | 0.398   |             |
+| Transplant             | skin_skin_time                | 307 | 1.01  | (0.93, 1.05)        | 0.734   |             |
+
+
 
 | Variable                   | OR   | 95% CI         | P_value |
 |---------------------------|------|----------------|---------|
