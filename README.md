@@ -73,18 +73,17 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 
 
 # Among lung-transplant patients still alive and not retransplanted, how does each variable affect the instantaneous hazard (risk per day) of death? The cause-specific Cox proportional hazards model for death after lung transplant. (consored from death_event == 1)
-
-| Variable                 | HR (exp(coef)) | 95% CI           | p-value   | Interpretation                                                                                                                                                            |
-| ------------------------ | -------------- | ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **AKI (aki_binary)**     | 2.18           | 0.77 – 6.18      | 0.14      | Patients with AKI had about **2× higher instantaneous risk of death** than those without AKI, but this result is **not statistically significant** (wide CI → uncertain). |
-| **Age**                  | 0.98 per year  | 0.95 – 1.02      | 0.18      | Each year older slightly lowered the estimated hazard, but again **not significant**.                                                                                     |
-| **Sex (Female vs Male)** | 1.59           | 0.57 – 4.39      | 0.37      | Females showed higher risk, but with wide uncertainty.                                                                                                                    |
-| **BMI**                  | 1.00           | 0.93 – 1.08      | 0.95      | No clear relationship.                                                                                                                                                    |
-| **RBC units intra-op**   | 0.99           | 0.83 – 1.18      | 0.92      | No clear relationship.                                                                                                                                                    |
-| **Platelets units**      | 1.14           | 0.69 – 1.87      | 0.62      | No clear relationship.                                                                                                                                                    |
-| **Fluids (per L)**       | 0.84           | 0.57 – 1.25      | 0.40      | Slight trend toward lower hazard with more fluid, not significant.                                                                                                        |
-| **Type of ECLS used**    | **0.096**      | **0.019 – 0.48** | **0.004** | Strongly significant: those with this ECLS type had about **90 % lower hazard of death** than the reference group.                                                        |
-| **Post-operative ECLS**  | **3.69**       | **1.33 – 10.28** | **0.012** | Highly significant: needing post-op ECLS was associated with about **3.7× higher hazard of death.**                                                                       |
+| Variable                          | HR (exp(coef)) | 95% CI        | p-value | Interpretation                                                                                                                                                          |
+|-----------------------------------|----------------|---------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **AKI (aki_binary)**              | 2.18           | 0.77 – 6.18   | 0.14    | Patients with AKI had about **2× higher instantaneous risk of death** than those without AKI, but this result is **not statistically significant** (wide CI → uncertain). |
+| **Age**                           | 0.98 per year  | 0.95 – 1.01   | 0.18    | Each year older slightly lowered the estimated hazard, but **not significant**.                                                                                         |
+| **Sex (Female vs Male)**          | 1.59           | 0.57 – 4.39   | 0.37    | Females showed higher risk, but with wide uncertainty (not significant).                                                                                                |
+| **BMI**                           | 1.00           | 0.93 – 1.08   | 0.95    | No clear relationship.                                                                                                                                                  |
+| **RBC units intra-op**            | 0.99           | 0.83 – 1.18   | 0.92    | No clear relationship.                                                                                                                                                  |
+| **Platelets units**               | 1.14           | 0.69 – 1.87   | 0.62    | No clear relationship.                                                                                                                                                  |
+| **Fluids (per 1000 mL)**          | 0.84           | 0.57 – 1.25   | 0.40    | Slight trend toward lower hazard with more fluid administration, not significant.                                                                                       |
+| **Type of ECLS used**             | **0.096**      | **0.019 – 0.48** | **0.00445*** | **Strongly significant**: Those with this ECLS type had about **90% lower hazard of death** than the reference group.                                                   |
+| **Post-operative ECLS**           | **3.69**       | **1.33 – 10.28** | **0.01241*** | **Highly significant**: Needing post-op ECLS was associated with about **3.7× higher hazard of death**.                                                                |
 
 
 # After adjusting for pre-op comorbidities (diabetes types, malignancy, pulmonary infection, prior surgeries, etc.), does AKI change the instantaneous hazard of death after transplant? (Firth‐penalized Cox model)
@@ -108,7 +107,10 @@ Non-significant Predictors: Neither preoperative anemia (hemoglobin level), hypo
 # Lung-Transplant-Analysis-part B for Mortality
 
 # For each predictor on its own, is there evidence it’s associated with the instantaneous hazard of death after lung transplant?
-<img width="1096" height="1256" alt="image" src="https://github.com/user-attachments/assets/86317086-d013-4935-b829-09b49b2b121e" />
+
+<img width="708" height="836" alt="Screenshot 2025-11-06 at 11 33 33 AM" src="https://github.com/user-attachments/assets/ab407f49-8926-4a8c-a0b1-221afe66810d" />
+
+
 
 In univariable Cox analysis, several intra- and postoperative factors showed significant associations with mortality after lung transplantation. Patients requiring postoperative extracorporeal life support (ECLS) had nearly a three-fold higher hazard of death (HR ≈ 2.9, p = 0.005), indicating that postoperative cardiopulmonary failure strongly predicts poor survival. Greater intra-operative transfusion volumes, including fresh frozen plasma, red blood cells, cryoprecipitate, and platelets—were also linked to higher mortality risk (HRs ≈ 1.1–1.3, p < 0.05), suggesting that heavier transfusion requirements reflect greater surgical complexity and physiological stress. Other perioperative and preoperative factors, such as age, sex, BMI, pulmonary hypertension, prior surgeries, or baseline renal and hematologic indices, did not show significant unadjusted associations with death. 
 
